@@ -25,32 +25,43 @@ print("                                                             ")
 
 print('-'*60)
 
-# User input
-print("For more options or assistance, use --help")
-uin=input(f"File type?\nOptions:\n(0) gz\n(1) zip\n(3) Failsafe, uses local file. (dev option)\n")
+ret=True
 
 # User input if check for file type.
-if uin == '0':
-	print(f"you selected the 'gz' file type.\nGenerating File...")
+while ret == True:
+	print("For more options or assistance, use --h or --help")
+	uin=input(f"File type?\nOptions:\n(0) gz\n(1) zip\n(3) Manual Failsafe (see README)\n")
 
-	with gzip.open('epss_scores-2022-04-16.gz', 'rb') as f_in:
-		with open('newfile.csv' 'wb') as f_out:
-			shutil.copyfileobj(f_in, f_out)
-elif uin == '1':
-	print(f"you selected the 'zip' file type.\nGenerating File...")
+	if uin == '0':
+		print(f"you selected the 'gz' file type.\nGenerating File...")
 
-	zf = zipfile.ZipFile('epss_scores-2022-04-16.zip')
-	dfZip = pandas.read_csv(zf.open('newfile.csv'))
-elif uin == '3':
-	pass
-else:
-	print("Meep. Unexpected.")
-	sys.exit()
+		#Using the gzip library open() function to grab the epss file and write out to csv.
+		with gzip.open('epss_scores-2022-04-17.csv.gz', 'rb') as f_in:
+			with open('parser_epss_results.csv', 'wb') as f_out:
+				shutil.copyfileobj(f_in, f_out)
+
+		ret=False
+	elif uin == '1':
+		print(f"you selected the 'zip' file type.\nGenerating File...")
+
+		#Using zipfile library ZipFile() function to grab the epss file and write out to csv.
+		zf = zipfile.ZipFile('epss_scores-2022-04-17.zip')
+		dfZip = pandas.read_csv(zf.open('parser_epss_results.csv'))
+		ret=False
+	elif uin == '3':
+		pass
+	elif uin =='--help':
+		print("Excited to build out this menu and further options :) Please stay tuned.")
+	elif uin == '--h':
+		print("Excited to build out this menu and further options :) Please stay tuned.")
+	else:
+		print("Meep. Unexpected.")
+		sys.exit()
 
 #Initiate pandas read_csv() function and store in a variable.
 #header=1 is used to ignore the first row in the CSV. This is optional.
-df = pandas.read_csv('epss_scores-2022-04-16.csv', header=1)
-#print(df)
+
+df = pandas.read_csv('parser_epss_results.csv', header=1)
 
 #Create dictionary to generate high scorers observed
 high_scorers_dict = {}
