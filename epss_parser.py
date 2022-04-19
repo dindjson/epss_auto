@@ -12,6 +12,10 @@ import sys
 import gzip
 import shutil
 import zipfile
+import nvdlib
+import csv
+from tqdm import tqdm
+from collections import OrderedDict
 
 # Banner
 print('-'*60)
@@ -72,5 +76,70 @@ for index, row in df.iterrows():
 		high_scorers_dict[row['cve']] = row['epss']
 
 #Print statements
+print('-'*60)
+print("Amount of new CVEs with a generated EPSS score of >=0.9")
+print('-'*60)
 print(len(high_scorers_dict))
+print('-'*60)
+print("Summary of the data:")
 print(df)
+print('-'*60)
+
+uin2 = input(f"You now have a dictionary of CVEs/EPSS score key/value pair\nWhat would you like to do?\n (0) NVD Library Information\n")
+
+
+print("Generating file containing NVD references for high probability CVEs...")
+
+if uin == '0':
+	print("Generating lists...")
+	sleep(0.2)
+	cve_li = []
+	nvd_li = []
+	length = 20
+
+	print("Injecting keys...")
+	sleep(0.2)
+	for key in high_scorers_dict.keys():
+		cve_li.append(str(key))
+
+	print("Calling NVDLib... This might take a while...")
+	i = 0
+	while i <= len(cve_li):
+		r = nvdlib.getCVE(cve_li[i])
+		i += 1
+		nvd_li.append(r)
+
+		pbar = tqdm(total=length) # Init pbar
+		for i in range(length):
+  			pbar.update(n=1) # Increments counter
+
+	print("Filling Dictionary!...")
+	sleep(0.2)
+	nvd_ref_dict = {cve_li[i]: nvd_li[i] for i in range(len(nvd_li))}
+
+	print("Writing file!...")
+	sleep(0.2)
+	with open('cve_nvd_ref.csv','w', newline='') as f:
+	    w = csv.writer(f)
+	    w.writerows(nvd_ref_dict.items())	
+
+	print("File generated! Check working directory.")
+else:
+	print("Wo what happened??...")
+
+#Gather NVD information from nvdlib library getCVE() function
+#for key in high_scorers_dict.keys():
+#	nvd_cve_li.append(nvdlib.getCVE(high_scorers_dict[key]))
+#	cve_li.append(high_scorers_dict[key])
+
+'''
+Notes for next time:
+
+need to re-organize script to where a CVE list is iterable through user-input,
+and then the NVDLib function needs to be called.
+
+As of right now, the script works, however containing the NVDLib function the way 
+it is built now causes the script to run far too slow to scale effectively.
+
+Channel your inner bash
+'''
